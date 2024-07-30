@@ -13,8 +13,9 @@ import {
   DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
+  renderEditSingleSelectCell,
 } from '@mui/x-data-grid';
-import { Modal, Typography } from "@mui/material";
+import { FormControl, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
 import PrimaryButton from "@/components/PrimaryButton";
 import { DeleteRounded } from "@mui/icons-material";
 
@@ -22,6 +23,7 @@ export default function Pantry() {
     const [ pantry, setPantry ] = useState([]);
     const [rowModesModel, setRowModesModel] = useState({});
     const [ open, setOpen ] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const handleOpen = () => {
         setOpen(true);
@@ -112,35 +114,44 @@ export default function Pantry() {
     }
 
   const columns = [
-    { field: 'name', headerName: 'Name', width: 200, editable: true },
     {
-      field: 'category',
-      headerName: 'Category',
-      width: 200,
-      align: 'left',
-      headerAlign: 'left',
-      type: 'singleSelect',
-      editable: true,
-      valueOptions: ['Dairy', 'Produce', 'Meat & Poultry', 'Beverages', 'Grains & Pasta', 'Breads & Baked Goods', 'Canned & Jarred Goods', 'Spice & Seasonings', 'Snacks', 'Frozen Foods', 'Condiments & Sauces', 'Baking Supplies', 'Oils & Vinegars', 'Legumes & Beans', 'Pantry Staples', 'Dry Goods', 'Pet Food', 'Cleaning Supplies'],
+        field: 'name',
+        headerName: 'Name',
+        width: 200,
+        editable: true,
+        flex: 2,
     },
     {
-      field: 'quantity',
-      headerName: 'Quantity',
-      type: 'number',
-      width: 100,
-      editable: true,
-      align: 'left',
-      headerAlign: 'left',
+        field: 'category',
+        headerName: 'Category',
+        width: 200,
+        align: 'left',
+        headerAlign: 'left',
+        type: 'singleSelect',
+        editable: true,
+        valueOptions: ['Dairy', 'Produce', 'Meat & Poultry', 'Beverages', 'Grains & Pasta', 'Breads & Baked Goods', 'Canned & Jarred Goods', 'Spice & Seasonings', 'Snacks', 'Frozen Foods', 'Condiments & Sauces', 'Baking Supplies', 'Oils & Vinegars', 'Legumes & Beans', 'Pantry Staples', 'Dry Goods', 'Pet Food', 'Cleaning Supplies'],
+        flex: 2,
     },
     {
-      field: 'expiration',
-      headerName: 'Expiration',
-      type: 'date',
-      width: 100,
-      editable: true,
-      valueGetter: (params) => {
+        field: 'quantity',
+        headerName: 'Quantity',
+        type: 'number',
+        width: 100,
+        editable: true,
+        align: 'left',
+        headerAlign: 'left',
+        flex: 1,
+    },
+    {
+        field: 'expiration',
+        headerName: 'Expiration',
+        type: 'date',
+        width: 100,
+        editable: true,
+        valueGetter: (params) => {
             return params.seconds ? new Date(params.seconds * 1000) : new Date(params);
-        }
+        },
+        flex: 1,
     },
     {
       field: 'actions',
@@ -198,6 +209,11 @@ export default function Pantry() {
         updatePantry();
     }, [])
 
+    const filteredPantry = pantry.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
   return (
     <Box
       sx={{
@@ -216,8 +232,9 @@ export default function Pantry() {
             justifyContent={'space-between'}
             alignItems={'center'}
             sx={{
-                paddingBottom: '1rem',
+                paddingBottom: '1.5rem',
             }}
+            gap={8}
         >
             <Typography
                 sx={{
@@ -226,7 +243,43 @@ export default function Pantry() {
             >
                 My Pantry
             </Typography>
-            <PrimaryButton buttonText='Add Item' onClick={handleOpen} />
+
+            <Box
+                display={'flex'}
+                justifyContent={'flex-end'}
+                sx={{
+                    flexGrow: 1
+                }}
+                gap={3}
+            >
+                <TextField
+                    label="Search"
+                    variant="outlined"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={{
+                        flexGrow: 1,
+                        '& .MuiOutlinedInput-root': {
+                            p: 0,
+                            '& fieldset': {
+                                bgcolor: '#ffffff',
+                                borderRadius: '180px',
+                                borderColor: 'primary.main',
+                            },
+                            '&:hover fieldset': {
+                                borderColor: 'primary.main',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: 'primary.main',
+                            },
+                        },
+                    }}
+                    size='small'
+                    placeholder="Search pantry"
+                />
+
+                <PrimaryButton buttonText='Add Item' onClick={handleOpen} />
+            </Box>
         </Box>
         <Modal
             open={open}
@@ -240,7 +293,7 @@ export default function Pantry() {
             <AddForm addNewItem={addItem} handleClose={handleClose} />
         </Modal>
         <DataGrid
-            rows={pantry}
+            rows={filteredPantry}
             columns={columns}
             editMode="row"
             rowModesModel={rowModesModel}
@@ -251,6 +304,12 @@ export default function Pantry() {
                 '& .MuiDataGrid-cell, & .MuiDataGrid-columnHeaderTitle': {
                     textTransform: 'capitalize',
                 },
+                '& .MuiDataGrid-container--top [role=row]': {
+                    background: 'none !important',
+                },
+                bgcolor: '#ffffff',
+                borderRadius: '18px',
+                borderTop: 0,
             }}
         />
     </Box>

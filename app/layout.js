@@ -31,8 +31,9 @@ export default function RootLayout({ children }) {
               <Sidebar />
               <Box
                 sx={{
-                  p: 3,
-                  overflow: 'auto'
+                  p: '1.5rem 3rem',
+                  overflow: 'auto',
+                  flexGrow: 1,
                 }}
               >
                 { children }

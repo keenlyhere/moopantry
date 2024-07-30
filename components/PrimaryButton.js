@@ -7,7 +7,7 @@ export default function PrimaryButton({ buttonText, onClick }) {
         sx={{
             bgcolor: 'primary.main',
             color: 'secondary.main',
-            borderRadius: '18px',
+            borderRadius: '28px',
             paddingLeft: '1.5rem',
             paddingRight: '1.5rem',
             '&:hover': {
