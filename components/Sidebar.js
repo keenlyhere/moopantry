@@ -9,7 +9,6 @@ import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
     const pathname = usePathname();
-    console.log("current pathname:", pathname);
   return (
     <Box
         sx={{

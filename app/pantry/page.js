@@ -1,17 +1,27 @@
 'use client'
-import { Box, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridDeleteIcon } from '@mui/x-data-grid';
 import { firestore } from "@/firebase";
-import { collection, query, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import PrimaryButton from "@/components/PrimaryButton";
-import modal from "./modal";
 import AddForm from "@/components/AddForm";
+import Box from '@mui/material/Box';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/DeleteOutlined';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Close';
+import {
+  GridRowModes,
+  DataGrid,
+  GridActionsCellItem,
+  GridRowEditStopReasons,
+} from '@mui/x-data-grid';
+import { Modal, Typography } from "@mui/material";
+import PrimaryButton from "@/components/PrimaryButton";
+import { DeleteRounded } from "@mui/icons-material";
 
 export default function Pantry() {
     const [ pantry, setPantry ] = useState([]);
+    const [rowModesModel, setRowModesModel] = useState({});
     const [ open, setOpen ] = useState(false);
-    const [ item, setItem ] = useState({});
 
     const handleOpen = () => {
         setOpen(true);
@@ -21,33 +31,70 @@ export default function Pantry() {
         setOpen(false);
     }
 
-    const cols = [
-        { field: 'name', headerName: 'Name', width: 300, editable: true },
-        { field: 'category', headerName: 'Category', width: 300, editable: true },
-        { field: 'quantity', headerName: 'Quantity', width: 150, editable: true },
-        { field: 'expiration', headerName: 'Expiration Date', width: 150, editable: true },
-        {
-            field: 'delete',
-            headerName: 'Delete',
-            width: 150,
-            sortable: false,
-            renderCell: (params) => (
-                <>
-                    <GridActionsCellItem
-                        icon={<GridDeleteIcon />}
-                        onClick={() => handleDelete(params.id)}
-                        sx={{
-                            color: 'accent.main'
-                        }}
-                    />
-                </>
-            )
+    const handleRowEditStop = (params, event) => {
+        if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+        event.defaultMuiPrevented = true;
         }
-    ];
+    };
 
+    const handleEditClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+    };
 
-    const handleDelete = (id) => {
-        setPantry(pantry.filter((row) => row.id !== id));
+    const handleSaveClick = (id) => () => {
+        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    };
+
+    const handleDeleteClick = (id) => async () => {
+        try {
+            await deleteDoc(doc(firestore, 'pantry', id));
+            setPantry(pantry.filter((row) => row.id !== id));
+        } catch (error) {
+            console.error('Error deleting item:', error);
+        }
+    };
+
+    const handleCancelClick = (id) => () => {
+        setRowModesModel({
+        ...rowModesModel,
+        [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
+
+    const editedRow = pantry.find((row) => row.id === id);
+        if (editedRow.isNew) {
+            setPantry(pantry.filter((row) => row.id !== id));
+        }
+    };
+
+    const processRowUpdate = async (newRow) => {
+        const updatedRow = { ...newRow, isNew: false };
+        try {
+            const pantryDoc = doc(firestore, 'pantry', newRow.id);
+            await updateDoc(pantryDoc, {
+                name: newRow.name,
+                category: newRow.category,
+                quantity: newRow.quantity,
+                expiration: newRow.expiration,
+            });
+            setPantry(pantry.map((row) => (row.id === newRow.id ? updatedRow : row)));
+        } catch (error) {
+            console.error('Error updating item:', error);
+        }
+        return updatedRow;
+    };
+
+    const addItem = async (newItem) => {
+        try {
+            const pantryCollection = collection(firestore, 'pantry');
+            const newPantryItem = await addDoc(pantryCollection, newItem);
+            setPantry((prevPantry) => [...prevPantry, { ...newItem, id: newPantryItem.id }]);
+        } catch (error) {
+            console.error("Error adding item:", error);
+        }
+    }
+
+    const handleRowModesModelChange = (newRowModesModel) => {
+        setRowModesModel(newRowModesModel);
     };
 
     const updatePantry = async () => {
@@ -56,40 +103,114 @@ export default function Pantry() {
         const pantryList = [];
         docs.forEach((doc) => {
             pantryList.push({
-                ...doc.data(), id: doc.id
+                ...doc.data(),
+                id: doc.id
             })
         })
 
         setPantry(pantryList);
     }
 
-    const addItem = async (newItem) => {
-        console.log('Added item:', newItem);
-        const pantryCollection = collection(firestore, 'pantry');
-        const newPantryItem = await addDoc(pantryCollection, newItem);
-        setPantry((prevPantry) => [...prevPantry, { ...newItem, id: newPantryItem.id }]);
-        
-        console.log("new doc==>", newPantryItem.id)
-    }
+  const columns = [
+    { field: 'name', headerName: 'Name', width: 200, editable: true },
+    {
+      field: 'category',
+      headerName: 'Category',
+      width: 200,
+      align: 'left',
+      headerAlign: 'left',
+      type: 'singleSelect',
+      editable: true,
+      valueOptions: ['Dairy', 'Produce', 'Meat & Poultry', 'Beverages', 'Grains & Pasta', 'Breads & Baked Goods', 'Canned & Jarred Goods', 'Spice & Seasonings', 'Snacks', 'Frozen Foods', 'Condiments & Sauces', 'Baking Supplies', 'Oils & Vinegars', 'Legumes & Beans', 'Pantry Staples', 'Dry Goods', 'Pet Food', 'Cleaning Supplies'],
+    },
+    {
+      field: 'quantity',
+      headerName: 'Quantity',
+      type: 'number',
+      width: 100,
+      editable: true,
+      align: 'left',
+      headerAlign: 'left',
+    },
+    {
+      field: 'expiration',
+      headerName: 'Expiration',
+      type: 'date',
+      width: 100,
+      editable: true,
+      valueGetter: (params) => {
+            return params.seconds ? new Date(params.seconds * 1000) : new Date(params);
+        }
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 100,
+      cellClassName: 'actions',
+      getActions: ({ id }) => {
+        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              sx={{
+                color: 'primary.main',
+              }}
+              onClick={handleSaveClick(id)}
+            />,
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelClick(id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+            sx={{
+                color: 'primary.dark'
+            }}
+          />,
+          <GridActionsCellItem
+            icon={<DeleteRounded />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+            sx={{
+                color: 'accent.main'
+            }}
+          />,
+        ];
+      },
+    },
+  ];
 
     useEffect(() => {
         updatePantry();
     }, [])
 
-    console.log('pantry ==>', pantry)
-
   return (
     <Box
-        sx={{
-            borderRadius: '8px',
-            width: '100%',
-            height: '90%'
-        }}
+      sx={{
+        height: 500,
+        width: '100%',
+        '& .actions': {
+          color: 'text.secondary',
+        },
+        '& .textPrimary': {
+          color: 'text.primary',
+        },
+      }}
     >
-        {/* to-do: pantry, add item component
-            list out each item with item name, quantity, expiration date, category
-            add item component - option to scan image to automatically name and categorize the item?
-         */}
         <Box
             display={'flex'}
             justifyContent={'space-between'}
@@ -119,21 +240,19 @@ export default function Pantry() {
             <AddForm addNewItem={addItem} handleClose={handleClose} />
         </Modal>
         <DataGrid
-            rows={pantry} columns={cols}
+            rows={pantry}
+            columns={columns}
+            editMode="row"
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={handleRowModesModelChange}
+            onRowEditStop={handleRowEditStop}
+            processRowUpdate={processRowUpdate}
             sx={{
-                bgcolor: '#ffffff',
-                '.MuiDataGrid-root': {
-                    borderRadius: '18px',
-                },
-                '& .MuiDataGrid-container--top': {
-                    borderRadius: '8px',
-                    backgroundColor: "#99D9EA"
-                },
-                '& .MuiDataGrid-cell': {
+                '& .MuiDataGrid-cell, & .MuiDataGrid-columnHeaderTitle': {
                     textTransform: 'capitalize',
-                }
+                },
             }}
         />
     </Box>
-  )
+  );
 }
