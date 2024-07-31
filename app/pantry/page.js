@@ -151,55 +151,58 @@ export default function Pantry() {
             flex: 1,
         },
         {
-        field: 'actions',
-        type: 'actions',
-        headerName: 'Actions',
-        width: 100,
-        cellClassName: 'actions',
-        getActions: ({ id }) => {
-            const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Actions',
+            width: 100,
+            cellClassName: 'actions',
+            getActions: ({ id }) => {
+                const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
-            if (isInEditMode) {
-            return [
-                <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                sx={{
-                    color: 'primary.main',
-                }}
-                onClick={handleSaveClick(id)}
-                key={id}
-                />,
-                <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                className="textPrimary"
-                onClick={handleCancelClick(id)}
-                color="inherit"
-                />,
-            ];
-            }
+                if (isInEditMode) {
+                return [
+                    <GridActionsCellItem
+                    icon={<SaveIcon />}
+                    label="Save"
+                    sx={{
+                        color: 'primary.main',
+                    }}
+                    onClick={handleSaveClick(id)}
+                    key={`save_${id}`}
+                    />,
+                    <GridActionsCellItem
+                    icon={<CancelIcon />}
+                    label="Cancel"
+                    className="textPrimary"
+                    onClick={handleCancelClick(id)}
+                    color="inherit"
+                    key={`cancel_${id}`}
+                    />,
+                ];
+                }
 
-            return [
-            <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                className="textPrimary"
-                onClick={handleEditClick(id)}
-                sx={{
-                    color: 'primary.dark'
-                }}
-            />,
-            <GridActionsCellItem
-                icon={<DeleteRounded />}
-                label="Delete"
-                onClick={handleDeleteClick(id)}
-                sx={{
-                    color: 'accent.main'
-                }}
-            />,
-            ];
-        },
+                return [
+                    <GridActionsCellItem
+                        icon={<EditIcon />}
+                        label="Edit"
+                        className="textPrimary"
+                        onClick={handleEditClick(id)}
+                        sx={{
+                            color: 'primary.dark'
+                        }}
+                        key={`edit_${id}`}
+                    />,
+                    <GridActionsCellItem
+                        icon={<DeleteRounded />}
+                        label="Delete"
+                        onClick={handleDeleteClick(id)}
+                        sx={{
+                            color: 'accent.main'
+                        }}
+                        key={`delete_${id}`}
+                    />,
+                ];
+            },
         },
     ];
 
