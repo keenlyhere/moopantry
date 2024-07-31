@@ -304,6 +304,7 @@ export default function Pantry() {
             aria-describedby="Form to add a new item to your pantry"
             sx={{
                 p: 3,
+                overflow: 'auto',
             }}
         >
             <AddForm addNewItem={addItem} handleClose={handleClose} />
