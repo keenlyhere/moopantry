@@ -23,7 +23,7 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
         } else {
             setRatio("cover");
         }
-    })
+    }, [mobileScreen, ratio])
 
     const validate = () => {
         const newErrors = {};
