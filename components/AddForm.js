@@ -1,20 +1,51 @@
 'use client'
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
-import PrimaryButton from "./PrimaryButton";
-import { AddRounded } from "@mui/icons-material";
-import { useState } from "react";
+import { Box, Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { AddRounded, CameraAltRounded } from "@mui/icons-material";
+import { forwardRef, useState } from "react";
 
-export default function AddForm({ addNewItem, handleClose }) {
-    // to-do: pantry categories
-    // categories - dairy, produce, meat & poultry, beverages, grains & pasta, canned & jarred goods, baking supplies, spices & seasonings, snacks, frozen foods, condiments & sauces, breads & baked goods, oils & vinegars, legumes & beans, pantry staples, dry goods, pet food, cleaning supplies
-
+const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
     const [ name, setName ] = useState('');
     const [ category, setCategory ] = useState('');
-    const [ quantity, setQuantity ] = useState(0);
+    const [ quantity, setQuantity ] = useState(1);
     const [ expiration, setExpiration ] = useState('');
+    const [ errors, setErrors ] = useState({});
+    const [ isFormValid, setIsFormValid ] = useState(false);
 
-    const handleSubmit = (e) => {
+    const validate = () => {
+        const newErrors = {};
+
+        if (!name) {
+            newErrors.name = 'Item name is required';
+        } else if (name.length < 3) {
+            newErrors.name = 'Item name should be at least 3 characters';
+        }
+
+        if (!category) {
+            newErrors.category = 'Category is required';
+        }
+
+        if (!quantity || quantity < 1) {
+            newErrors.quantity = 'Quantity should be greater than 0';
+        }
+
+        if (!expiration) {
+            newErrors.expiration = 'Expiration date is required';
+        } else if (new Date(expiration) <= new Date()) {
+            newErrors.expiration = 'Expiration date should be in the future';
+        }
+
+        setErrors(newErrors);
+        console.log("newErrors:", newErrors);
+
+        return Object.keys(newErrors).length === 0;
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validate()) {
+            return;
+        }
 
         const newItem = {
             name,
@@ -23,9 +54,9 @@ export default function AddForm({ addNewItem, handleClose }) {
             expiration
         }
 
-        console.log("newItem", newItem)
+        console.log("newItem:", newItem)
 
-        addNewItem(newItem);
+        await addNewItem(newItem);
 
         // reset form after submission
         setName('');
@@ -36,9 +67,27 @@ export default function AddForm({ addNewItem, handleClose }) {
         handleClose();
     }
 
+    const handleExpirationChange = (e) => {
+        setExpiration(e.target.value);
+        const dateError = new Date(e.target.value) <= new Date() ? 'Expiration date should be in the future' : '';
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            expiration: dateError
+        }));
+        setIsFormValid(false);
+    };
+
+    const getTodayDate = () => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
 
   return (
     <Box
+        ref={ref}
         sx={{
             position: 'absolute',
             top: '50%',
@@ -49,6 +98,7 @@ export default function AddForm({ addNewItem, handleClose }) {
             p: 3,
             boxShadow: 24,
         }}
+        tabIndex={-1}
     >
         <Typography
             sx={{
@@ -76,19 +126,34 @@ export default function AddForm({ addNewItem, handleClose }) {
                 }}
                 sx={{
                     width: '100%',
+                    input: {
+                        color: 'primary.dark'
+                    }
                 }}
                 value={name}
                 onChange={e => setName(e.target.value)}
+                error={!!errors.name}
+                helperText={errors.name}
+                required
             />
 
-            <FormControl>
-                <InputLabel id="category-label">Category</InputLabel>
+            <FormControl
+                error={!!errors.category}
+            >
+                <InputLabel id="category-label" shrink required>Category</InputLabel>
                 <Select
                     id="outlined-required"
                     labelId="category-label"
                     label="Category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) => {
+                        if (selected.length === 0) {
+                            return <Typography sx={{ color: '#a0a0a0', fontWeight: '400'}}>Select a category</Typography>;
+                        }
+                        return selected;
+                    }}
                     MenuProps={{
                         anchorOrigin: {
                             vertical: 'bottom',
@@ -98,15 +163,19 @@ export default function AddForm({ addNewItem, handleClose }) {
                             vertical: "top",
                             horizontal: "left"
                         },
-                        getContentAnchorEl: null,
+                        getcontentanchorel: null,
                         PaperProps: {
                             sx: {
                                 maxHeight: 200,
                             }
                         }
                     }}
+                    sx={{
+                        color: 'primary.dark',
+                    }}
+                    required
                 >
-                    {/* dairy, produce, meat & poultry, beverages, grains & pasta, canned & jarred goods, baking supplies, spices & seasonings, snacks, frozen foods, condiments & sauces, breads & baked goods, oils & vinegars, legumes & beans, pantry staples, dry goods, pet food, cleaning supplies */}
+                    <MenuItem disabled value="">Select a category</MenuItem>
                     <MenuItem value="Dairy">Dairy</MenuItem>
                     <MenuItem value="Produce">Produce</MenuItem>
                     <MenuItem value="Meat & Poultry">Meat & Poultry</MenuItem>
@@ -126,6 +195,7 @@ export default function AddForm({ addNewItem, handleClose }) {
                     <MenuItem value="Pet Food">Pet Food</MenuItem>
                     <MenuItem value="Cleaning Supplies">Cleaning Supplies</MenuItem>
                 </Select>
+                {errors.category && <FormHelperText color="error">{errors.category}</FormHelperText>}
             </FormControl>
 
             <Box
@@ -142,9 +212,15 @@ export default function AddForm({ addNewItem, handleClose }) {
                     }}
                     sx={{
                         width: '50%',
+                        input: {
+                            color: 'primary.dark'
+                        },
                     }}
                     value={quantity}
                     onChange={(e) => setQuantity(e.target.value)}
+                    error={!!errors.quantity}
+                    helperText={errors.quantity}
+                    required
                 />
 
                 <TextField
@@ -156,15 +232,41 @@ export default function AddForm({ addNewItem, handleClose }) {
                     }}
                     sx={{
                         width: '50%',
+                        input: {
+                            color: 'primary.dark'
+                        },
                     }}
                     value={expiration}
-                    onChange={(e) => setExpiration(e.target.value)}
+                    onChange={handleExpirationChange}
+                    error={!!errors.expiration}
+                    helperText={errors.expiration}
+                    inputProps={{
+                        min: getTodayDate(),
+                    }}
+                    required
                 />
             </Box>
 
             <Box
                 alignSelf={"flex-end"}
+                display="flex"
+                gap={3}
             >
+                <Button
+                    sx={{
+                        borderRadius: '18px',
+                        bgcolor: '#ffffff',
+                        p: '0 1.5rem',
+                        border: '1px solid',
+                        '&:hover': {
+                            bgcolor: 'primary.main',
+                            color: 'secondary.main',
+                        }
+                    }}
+                    startIcon={<CameraAltRounded />}
+                >
+                    Take photo
+                </Button>
                 <Button
                     type="submit"
                     sx={{
@@ -176,8 +278,14 @@ export default function AddForm({ addNewItem, handleClose }) {
                         '&:hover': {
                             bgcolor: 'primary.dark'
                         },
+                        '&.Mui-disabled': {
+                            bgcolor: 'secondary.main',
+                            pointerEvents: 'initial',
+                            cursor: isFormValid ? 'pointer' : 'not-allowed',
+                        },
                     }}
                     startIcon={<AddRounded />}
+                    disabled={!isFormValid}
                 >
                     Add
                 </Button>
@@ -186,4 +294,6 @@ export default function AddForm({ addNewItem, handleClose }) {
         </Box>
     </Box>
   )
-}
+});
+
+export default AddForm;

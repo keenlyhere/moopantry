@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import AddForm from "@/components/AddForm";
 import Box from '@mui/material/Box';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import {
@@ -13,11 +12,9 @@ import {
   DataGrid,
   GridActionsCellItem,
   GridRowEditStopReasons,
-  renderEditSingleSelectCell,
 } from '@mui/x-data-grid';
-import { FormControl, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
-import PrimaryButton from "@/components/PrimaryButton";
-import { DeleteRounded } from "@mui/icons-material";
+import { Button, Modal, TextField, Typography } from "@mui/material";
+import { AddRounded, DeleteRounded } from "@mui/icons-material";
 
 export default function Pantry() {
     const [ pantry, setPantry ] = useState([]);
@@ -113,97 +110,97 @@ export default function Pantry() {
         setPantry(pantryList);
     }
 
-  const columns = [
-    {
-        field: 'name',
-        headerName: 'Name',
-        width: 200,
-        editable: true,
-        flex: 2,
-    },
-    {
-        field: 'category',
-        headerName: 'Category',
-        width: 200,
-        align: 'left',
-        headerAlign: 'left',
-        type: 'singleSelect',
-        editable: true,
-        valueOptions: ['Dairy', 'Produce', 'Meat & Poultry', 'Beverages', 'Grains & Pasta', 'Breads & Baked Goods', 'Canned & Jarred Goods', 'Spice & Seasonings', 'Snacks', 'Frozen Foods', 'Condiments & Sauces', 'Baking Supplies', 'Oils & Vinegars', 'Legumes & Beans', 'Pantry Staples', 'Dry Goods', 'Pet Food', 'Cleaning Supplies'],
-        flex: 2,
-    },
-    {
-        field: 'quantity',
-        headerName: 'Quantity',
-        type: 'number',
-        width: 100,
-        editable: true,
-        align: 'left',
-        headerAlign: 'left',
-        flex: 1,
-    },
-    {
-        field: 'expiration',
-        headerName: 'Expiration',
-        type: 'date',
-        width: 100,
-        editable: true,
-        valueGetter: (params) => {
-            return params.seconds ? new Date(params.seconds * 1000) : new Date(params);
+    const columns = [
+        {
+            field: 'name',
+            headerName: 'Name',
+            width: 200,
+            editable: true,
+            flex: 2,
         },
-        flex: 1,
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        {
+            field: 'category',
+            headerName: 'Category',
+            width: 200,
+            align: 'left',
+            headerAlign: 'left',
+            type: 'singleSelect',
+            editable: true,
+            valueOptions: ['Dairy', 'Produce', 'Meat & Poultry', 'Beverages', 'Grains & Pasta', 'Breads & Baked Goods', 'Canned & Jarred Goods', 'Spice & Seasonings', 'Snacks', 'Frozen Foods', 'Condiments & Sauces', 'Baking Supplies', 'Oils & Vinegars', 'Legumes & Beans', 'Pantry Staples', 'Dry Goods', 'Pet Food', 'Cleaning Supplies'],
+            flex: 2,
+        },
+        {
+            field: 'quantity',
+            headerName: 'Quantity',
+            type: 'number',
+            width: 100,
+            editable: true,
+            align: 'left',
+            headerAlign: 'left',
+            flex: 1,
+        },
+        {
+            field: 'expiration',
+            headerName: 'Expiration',
+            type: 'date',
+            width: 100,
+            editable: true,
+            valueGetter: (params) => {
+                return params.seconds ? new Date(params.seconds * 1000) : new Date(params);
+            },
+            flex: 1,
+        },
+        {
+        field: 'actions',
+        type: 'actions',
+        headerName: 'Actions',
+        width: 100,
+        cellClassName: 'actions',
+        getActions: ({ id }) => {
+            const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
-        if (isInEditMode) {
-          return [
+            if (isInEditMode) {
+            return [
+                <GridActionsCellItem
+                icon={<SaveIcon />}
+                label="Save"
+                sx={{
+                    color: 'primary.main',
+                }}
+                onClick={handleSaveClick(id)}
+                />,
+                <GridActionsCellItem
+                icon={<CancelIcon />}
+                label="Cancel"
+                className="textPrimary"
+                onClick={handleCancelClick(id)}
+                color="inherit"
+                />,
+            ];
+            }
+
+            return [
             <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: 'primary.main',
-              }}
-              onClick={handleSaveClick(id)}
+                icon={<EditIcon />}
+                label="Edit"
+                className="textPrimary"
+                onClick={handleEditClick(id)}
+                sx={{
+                    color: 'primary.dark'
+                }}
             />,
             <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(id)}
-              color="inherit"
+                icon={<DeleteRounded />}
+                label="Delete"
+                onClick={handleDeleteClick(id)}
+                sx={{
+                    color: 'accent.main'
+                }}
             />,
-          ];
-        }
-
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(id)}
-            sx={{
-                color: 'primary.dark'
-            }}
-          />,
-          <GridActionsCellItem
-            icon={<DeleteRounded />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            sx={{
-                color: 'accent.main'
-            }}
-          />,
-        ];
-      },
-    },
-  ];
+            ];
+        },
+        },
+    ];
 
     useEffect(() => {
         updatePantry();
@@ -278,7 +275,22 @@ export default function Pantry() {
                     placeholder="Search pantry"
                 />
 
-                <PrimaryButton buttonText='Add Item' onClick={handleOpen} />
+                    <Button
+                        sx={{
+                            bgcolor: 'primary.main',
+                            color: 'secondary.main',
+                            borderRadius: '28px',
+                            paddingLeft: '1.5rem',
+                            paddingRight: '1.5rem',
+                            '&:hover': {
+                                bgcolor: 'primary.dark'
+                            }
+                        }}
+                        startIcon={<AddRounded />}
+                        onClick={handleOpen}
+                    >
+                        Add Item
+                    </Button>
             </Box>
         </Box>
         <Modal

@@ -3,7 +3,7 @@ import { Poppins } from "next/font/google";
 import { createTheme } from '@mui/material/styles';
 
 export const poppins = Poppins({
-	weight: ["400", "600"],
+	weight: ["300", "400", "600"],
 	subsets: ["latin"],
 });
 
