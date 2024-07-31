@@ -168,6 +168,7 @@ export default function Pantry() {
                     color: 'primary.main',
                 }}
                 onClick={handleSaveClick(id)}
+                key={id}
                 />,
                 <GridActionsCellItem
                 icon={<CancelIcon />}
