@@ -1,5 +1,5 @@
 'use client'
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { BottomNavigation, BottomNavigationAction, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from "@mui/material";
 import Link from "next/link";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import KitchenIcon from '@mui/icons-material/Kitchen';
@@ -9,126 +9,199 @@ import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
     const pathname = usePathname();
-  return (
-    <Box
-        sx={{
-            width: 250,
-            height: '100vh',
-            bgcolor: '#ffffff',
-            p: '1rem',
-        }}
-        display={"flex"}
-        flexDirection={"column"}
-    >
-        {/* to-do: logo */}
-        <Typography
-            sx={{
-                color: 'primary.main',
-                fontSize: '32px',
-                fontWeight: '600',
-                paddingBottom: '1rem',
-            }}
-            alignSelf={"center"}
-        >
-            moopantry
-        </Typography>
+    const isMobile = useMediaQuery('(max-width:600px)');
 
-        {/* to-do: menu items */}
-        <List>
-            <ListItem disablePadding>
-                <Link href={'/dashboard'} style={{ textDecoration: 'none', width: '100%' }}>
-                    <ListItemButton
-                        sx={{
-                            borderRadius: '8px',
-                            '&& .Mui-selected, && .MuiListItemButton-root:hover': {
-                                bgcolor: 'secondary.main',
-                            }
-                        }}
-                        selected={ pathname === '/dashboard'}
-                    >
-                        <ListItemIcon>
-                            <DashboardIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="Dashboard"
+    const SidebarContent = () => (
+        <Box
+            sx={{
+                width: 250,
+                height: '100vh',
+                bgcolor: '#ffffff',
+                p: '1rem',
+            }}
+            display={"flex"}
+            flexDirection={"column"}
+        >
+            {/* to-do: logo */}
+            <Typography
+                sx={{
+                    color: 'primary.main',
+                    fontSize: '32px',
+                    fontWeight: '600',
+                    paddingBottom: '1rem',
+                }}
+                alignSelf={"center"}
+            >
+                moopantry
+            </Typography>
+
+            <List>
+                <ListItem disablePadding>
+                    <Link href={'/dashboard'} style={{ textDecoration: 'none', width: '100%' }}>
+                        <ListItemButton
                             sx={{
-                                color: 'primary.dark',
+                                borderRadius: '8px',
+                                '&& .Mui-selected, && .MuiListItemButton-root:hover': {
+                                    bgcolor: 'secondary.main',
+                                }
                             }}
-                        />
-                    </ListItemButton>
-                </Link>
-            </ListItem>
-            <ListItem disablePadding>
-                <Link href={'/pantry'} style={{ textDecoration: 'none', width: '100%' }}>
-                    <ListItemButton
-                        sx={{
-                            borderRadius: '8px',
-                            '&& .Mui-selected, && .MuiListItemButton-root:hover': {
-                                bgcolor: 'palette.secondary',
-                            }
-                        }}
-                        selected={ pathname === '/pantry'}
-                    >
-                        <ListItemIcon>
-                            <KitchenIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="My Pantry"
+                            selected={ pathname === '/dashboard'}
+                        >
+                            <ListItemIcon>
+                                <DashboardIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Dashboard"
+                                sx={{
+                                    color: 'primary.dark',
+                                }}
+                            />
+                        </ListItemButton>
+                    </Link>
+                </ListItem>
+                <ListItem disablePadding>
+                    <Link href={'/pantry'} style={{ textDecoration: 'none', width: '100%' }}>
+                        <ListItemButton
                             sx={{
-                                color: 'primary.dark',
+                                borderRadius: '8px',
+                                '&& .Mui-selected, && .MuiListItemButton-root:hover': {
+                                    bgcolor: 'palette.secondary',
+                                }
                             }}
-                        />
-                    </ListItemButton>
-                </Link>
-            </ListItem>
-            <ListItem disablePadding>
-                <Link href={'/recipes'} style={{ textDecoration: 'none', width: '100%' }}>
-                    <ListItemButton
-                        sx={{
-                            borderRadius: '8px',
-                            '&& .Mui-selected, && .MuiListItemButton-root:hover': {
-                                bgcolor: 'palette.secondary',
-                            }
-                        }}
-                        selected={ pathname === '/recipes'}
-                    >
-                        <ListItemIcon>
-                            <MenuBookIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="AI Recipes"
+                            selected={ pathname === '/pantry'}
+                        >
+                            <ListItemIcon>
+                                <KitchenIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="Pantry"
+                                sx={{
+                                    color: 'primary.dark',
+                                }}
+                            />
+                        </ListItemButton>
+                    </Link>
+                </ListItem>
+                <ListItem disablePadding>
+                    <Link href={'/recipes'} style={{ textDecoration: 'none', width: '100%' }}>
+                        <ListItemButton
                             sx={{
-                                color: 'primary.dark',
+                                borderRadius: '8px',
+                                '&& .Mui-selected, && .MuiListItemButton-root:hover': {
+                                    bgcolor: 'palette.secondary',
+                                }
                             }}
-                        />
-                    </ListItemButton>
-                </Link>
-            </ListItem>
-            <ListItem disablePadding>
-                <Link href={'/account'} style={{ textDecoration: 'none', width: '100%' }}>
-                    <ListItemButton
-                        sx={{
-                            borderRadius: '8px',
-                            '&& .Mui-selected': {
-                                bgcolor: '#f0f0f0',
-                            },
-                        }}
-                        selected={ pathname === '/account'}
-                    >
-                        <ListItemIcon>
-                            <PersonIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                            primary="My Account"
+                            selected={ pathname === '/recipes'}
+                        >
+                            <ListItemIcon>
+                                <MenuBookIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="AI Recipes"
+                                sx={{
+                                    color: 'primary.dark',
+                                }}
+                            />
+                        </ListItemButton>
+                    </Link>
+                </ListItem>
+                <ListItem disablePadding>
+                    <Link href={'/account'} style={{ textDecoration: 'none', width: '100%' }}>
+                        <ListItemButton
                             sx={{
-                                color: 'primary.dark',
+                                borderRadius: '8px',
+                                '&& .Mui-selected': {
+                                    bgcolor: '#f0f0f0',
+                                },
                             }}
-                            selected
-                        />
-                    </ListItemButton>
-                </Link>
-            </ListItem>
-        </List>
-    </Box>
+                            selected={ pathname === '/account'}
+                        >
+                            <ListItemIcon>
+                                <PersonIcon />
+                            </ListItemIcon>
+                            <ListItemText
+                                primary="My Account"
+                                sx={{
+                                    color: 'primary.dark',
+                                }}
+                                selected
+                            />
+                        </ListItemButton>
+                    </Link>
+                </ListItem>
+            </List>
+        </Box>
+    )
+
+    const BottomNav = () => (
+        <BottomNavigation
+            showLabels
+            sx={{
+                position: 'fixed',
+                bottom: 0,
+                width: '100%',
+                height: 64,
+                bgcolor: '#ffffff',
+                boxShadow: '0 -2px 5px rgba(0,0,0,0.1)',
+                p: '1rem',
+            }}
+            value={pathname}
+        >
+            <BottomNavigationAction
+                component={Link}
+                href='/dashboard'
+                label='Dashboard'
+                value='/dashboard'
+                icon={<DashboardIcon />}
+                sx={{
+                    '&.Mui-selected': {
+                        color: 'primary.main'
+                    }
+                }}
+            />
+            <BottomNavigationAction
+                component={Link}
+                href='/pantry'
+                label='Pantry'
+                value='/pantry'
+                icon={<KitchenIcon />}
+                sx={{
+                    '&.Mui-selected': {
+                        color: 'primary.main'
+                    }
+                }}
+            />
+            <BottomNavigationAction
+                component={Link}
+                href='/recipes'
+                label='Recipes'
+                value='/recipes'
+                icon={<MenuBookIcon />}
+                sx={{
+                    '&.Mui-selected': {
+                        color: 'primary.main'
+                    }
+                }}
+            />
+            <BottomNavigationAction
+                component={Link}
+                href='/account'
+                label='Account'
+                value='/account'
+                icon={<PersonIcon />}
+                sx={{
+                    '&.Mui-selected': {
+                        color: 'primary.main'
+                    }
+                }}
+            />
+        </BottomNavigation>
+    )
+  return (
+    isMobile ? (
+        <BottomNav />
+    ) : (
+        <SidebarContent />
+    )
   )
 }

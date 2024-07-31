@@ -13,14 +13,15 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from '@mui/x-data-grid';
-import { Button, Modal, TextField, Typography } from "@mui/material";
-import { AddRounded, DeleteRounded } from "@mui/icons-material";
+import { Button, Modal, TextField, Typography, useMediaQuery } from "@mui/material";
+import { AddRounded, DeleteRounded, EditRounded } from "@mui/icons-material";
 
 export default function Pantry() {
     const [ pantry, setPantry ] = useState([]);
     const [rowModesModel, setRowModesModel] = useState({});
     const [ open, setOpen ] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const isMobile = useMediaQuery('(max-width:600px)');
 
     const handleOpen = () => {
         setOpen(true);
@@ -162,34 +163,37 @@ export default function Pantry() {
                 if (isInEditMode) {
                 return [
                     <GridActionsCellItem
-                    icon={<SaveIcon />}
-                    label="Save"
-                    sx={{
-                        color: 'primary.main',
-                    }}
-                    onClick={handleSaveClick(id)}
-                    key={`save_${id}`}
+                        icon={<SaveIcon />}
+                        label="Save"
+                        sx={{
+                            color: 'primary.main',
+                        }}
+                        onClick={handleSaveClick(id)}
+                        key={`save_${id}`}
                     />,
                     <GridActionsCellItem
-                    icon={<CancelIcon />}
-                    label="Cancel"
-                    className="textPrimary"
-                    onClick={handleCancelClick(id)}
-                    color="inherit"
-                    key={`cancel_${id}`}
+                        icon={<CancelIcon />}
+                        label="Cancel"
+                        className="textPrimary"
+                        onClick={handleCancelClick(id)}
+                        sx={{
+                            color: 'primary.main',
+                        }}
+                        key={`cancel_${id}`}
                     />,
                 ];
                 }
 
                 return [
                     <GridActionsCellItem
-                        icon={<EditIcon />}
+                        icon={<EditRounded
+                            sx={{
+                                color: 'primary.dark'
+                            }}
+                        />}
                         label="Edit"
                         className="textPrimary"
                         onClick={handleEditClick(id)}
-                        sx={{
-                            color: 'primary.dark'
-                        }}
                         key={`edit_${id}`}
                     />,
                     <GridActionsCellItem
@@ -218,7 +222,7 @@ export default function Pantry() {
   return (
     <Box
       sx={{
-        height: 500,
+        height: { xs: '83%', sm: 500},
         width: '100%',
         '& .actions': {
           color: 'text.secondary',
@@ -242,7 +246,7 @@ export default function Pantry() {
                     color: 'primary.dark'
                 }}
             >
-                My Pantry
+                Pantry
             </Typography>
 
             <Box
@@ -279,22 +283,42 @@ export default function Pantry() {
                     placeholder="Search pantry"
                 />
 
-                    <Button
-                        sx={{
-                            bgcolor: 'primary.main',
-                            color: 'secondary.main',
-                            borderRadius: '28px',
-                            paddingLeft: '1.5rem',
-                            paddingRight: '1.5rem',
-                            '&:hover': {
-                                bgcolor: 'primary.dark'
-                            }
-                        }}
-                        startIcon={<AddRounded />}
-                        onClick={handleOpen}
-                    >
-                        Add Item
-                    </Button>
+                    { isMobile ? (
+                        <Button
+                            sx={{
+                                bgcolor: 'primary.main',
+                                color: 'secondary.main',
+                                borderRadius: '28px',
+                                paddingLeft: '1.5rem',
+                                paddingRight: '1.5rem',
+                                '&:hover': {
+                                    bgcolor: 'primary.dark'
+                                }
+                            }}
+                            startIcon={<AddRounded />}
+                            onClick={handleOpen}
+                        >
+                            Add
+                        </Button>
+                    ) : (
+                        <Button
+                            sx={{
+                                bgcolor: 'primary.main',
+                                color: 'secondary.main',
+                                borderRadius: '28px',
+                                paddingLeft: '1.5rem',
+                                paddingRight: '1.5rem',
+                                '&:hover': {
+                                    bgcolor: 'primary.dark'
+                                }
+                            }}
+                            startIcon={<AddRounded />}
+                            onClick={handleOpen}
+                        >
+                            Add Item
+                        </Button>
+                    )}
+
             </Box>
         </Box>
         <Modal
@@ -327,6 +351,8 @@ export default function Pantry() {
                 bgcolor: '#ffffff',
                 borderRadius: '18px',
                 borderTop: 0,
+                width: '100%',
+                height: '100%',
             }}
         />
     </Box>
