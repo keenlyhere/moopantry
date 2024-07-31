@@ -1,7 +1,9 @@
 'use client'
-import { Box, Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Modal, Select, TextField, Typography, useMediaQuery } from "@mui/material";
 import { AddRounded, CameraAltRounded } from "@mui/icons-material";
-import { forwardRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
+import { Camera } from "react-camera-pro";
+import CameraComponent from "./Camera";
 
 const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
     const [ name, setName ] = useState('');
@@ -10,6 +12,18 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
     const [ expiration, setExpiration ] = useState('');
     const [ errors, setErrors ] = useState({});
     const [ isFormValid, setIsFormValid ] = useState(false);
+    const [ openCamera, setOpenCamera ] = useState(false);
+    const camera = useRef(null);
+    const mobileScreen = useMediaQuery('(min-width:600px)');
+    const [ ratio, setRatio ] = useState(9 / 16);
+
+    useEffect(() => {
+        if (mobileScreen) {
+            setRatio(3 / 4);
+        } else {
+            setRatio("cover");
+        }
+    })
 
     const validate = () => {
         const newErrors = {};
@@ -84,6 +98,31 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
         const dd = String(today.getDate()).padStart(2, '0');
         return `${yyyy}-${mm}-${dd}`;
     };
+
+    const handleCapture = async () => {
+        const image = camera.current.takePhoto();
+        console.log("Captured image:", image);
+
+        // to-do: classify image - api call to gpt vision api
+        const classifyImage = async (image) => {
+            return {
+                name: "Carrot",
+                category: "Produce",
+                quantity: 2,
+                expiration: "2024-12-31"
+            }
+        }
+
+        const classifiedData = await classifyImage(image);
+
+        setName(classifiedData.name);
+        setCategory(classifiedData.category);
+        setQuantity(classifiedData.quantity);
+        setExpiration(classifiedData.expiration);
+
+        setOpenCamera(false);
+        setIsFormValid(true);
+    }
 
   return (
     <Box
@@ -264,8 +303,9 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
                         }
                     }}
                     startIcon={<CameraAltRounded />}
+                    onClick={() => setOpenCamera(true)}
                 >
-                    Take photo
+                    Scan item
                 </Button>
                 <Button
                     type="submit"
@@ -290,8 +330,16 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
                     Add
                 </Button>
             </Box>
-
         </Box>
+
+        <Modal
+            open={openCamera}
+            onClose={() => setOpenCamera(false)}
+            aria-labelledby="camera-modal-title"
+            aria-describedby="camera-modal-description"
+        >
+            <CameraComponent setOpenCamera={setOpenCamera} camera={camera} ratio={ratio} handleCapture={handleCapture} />
+        </Modal>
     </Box>
   )
 });
