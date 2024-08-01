@@ -1,5 +1,5 @@
 'use client'
-import { BottomNavigation, BottomNavigationAction, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from "@mui/material";
+import { BottomNavigation, BottomNavigationAction, Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
 import Link from "next/link";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import KitchenIcon from '@mui/icons-material/Kitchen';
@@ -11,15 +11,16 @@ import { signOut } from "next-auth/react";
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const isMobile = useMediaQuery('(max-width:900px)');
 
-    const SidebarContent = () => (
+  return (
+    <Box>
         <Box
             sx={{
                 width: 250,
                 height: '100vh',
                 bgcolor: '#ffffff',
                 p: '1rem',
+                display: { xs: 'none', md: 'block' }
             }}
             display={"flex"}
             flexDirection={"column"}
@@ -155,9 +156,7 @@ export default function Sidebar() {
                 </ListItem>
             </List>
         </Box>
-    )
 
-    const BottomNav = () => (
         <BottomNavigation
             showLabels
             sx={{
@@ -166,6 +165,7 @@ export default function Sidebar() {
                 bgcolor: '#ffffff',
                 boxShadow: '0 -2px 5px rgba(0,0,0,0.1)',
                 p: '1rem',
+                display: { md: 'none' }
             }}
             value={pathname}
         >
@@ -218,12 +218,6 @@ export default function Sidebar() {
                 }}
             />
         </BottomNavigation>
-    )
-  return (
-    isMobile ? (
-        <BottomNav />
-    ) : (
-        <SidebarContent />
-    )
+    </Box>
   )
 }
