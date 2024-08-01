@@ -4,6 +4,7 @@ import { Box, Button, Divider, Grid, InputAdornment, TextField, Typography } fro
 import { useState } from "react";
 import GoogleIcon from '@mui/icons-material/Google';
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
     const [ showPassword, setShowPassword ] = useState(false);
@@ -29,6 +30,7 @@ export default function Login() {
                 },
                 overflow: 'auto',
                 bgcolor: '#ffffff',
+                p: '1.5rem 3rem',
             }}
             flex={1}
             display="flex"
@@ -159,6 +161,7 @@ export default function Login() {
                         }
                     }}
                     startIcon={<GoogleIcon />}
+                    onClick={() => signIn('google')}
                 >
                     Google
                 </Button>

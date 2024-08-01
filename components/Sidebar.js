@@ -6,6 +6,8 @@ import KitchenIcon from '@mui/icons-material/Kitchen';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PersonIcon from '@mui/icons-material/Person';
 import { usePathname } from "next/navigation";
+import { Logout } from "@mui/icons-material";
+import { signOut } from "next-auth/react";
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -37,7 +39,7 @@ export default function Sidebar() {
 
             <List>
                 <ListItem disablePadding>
-                    <Link href={'/dashboard'} style={{ textDecoration: 'none', width: '100%' }}>
+                    <Link href={'/'} style={{ textDecoration: 'none', width: '100%' }}>
                         <ListItemButton
                             sx={{
                                 borderRadius: '8px',
@@ -45,7 +47,7 @@ export default function Sidebar() {
                                     bgcolor: 'secondary.main',
                                 }
                             }}
-                            selected={ pathname === '/dashboard'}
+                            selected={ pathname === '/' }
                         >
                             <ListItemIcon>
                                 <DashboardIcon />
@@ -129,6 +131,28 @@ export default function Sidebar() {
                         </ListItemButton>
                     </Link>
                 </ListItem>
+                <ListItem disablePadding>
+                    <ListItemButton
+                        sx={{
+                            borderRadius: '8px',
+                            '&& .Mui-selected': {
+                                bgcolor: '#f0f0f0',
+                            },
+                        }}
+                        onClick={() => signOut({ callbackUrl: '/login' })}
+                    >
+                        <ListItemIcon>
+                            <Logout />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Logout"
+                            sx={{
+                                color: 'primary.dark',
+                            }}
+                            selected
+                        />
+                    </ListItemButton>
+                </ListItem>
             </List>
         </Box>
     )
@@ -137,8 +161,6 @@ export default function Sidebar() {
         <BottomNavigation
             showLabels
             sx={{
-                // position: 'fixed',
-                // bottom: 0,
                 width: '100%',
                 height: 64,
                 bgcolor: '#ffffff',
@@ -149,9 +171,9 @@ export default function Sidebar() {
         >
             <BottomNavigationAction
                 component={Link}
-                href='/dashboard'
+                href='/'
                 label='Dashboard'
-                value='/dashboard'
+                value='/'
                 icon={<DashboardIcon />}
                 sx={{
                     '&.Mui-selected': {

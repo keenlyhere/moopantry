@@ -14,6 +14,7 @@ import {
 } from '@mui/x-data-grid';
 import { Button, Modal, TextField, Typography, useMediaQuery } from "@mui/material";
 import { AddRounded, DeleteRounded, EditRounded } from "@mui/icons-material";
+import Sidebar from "@/components/Sidebar";
 
 export default function Pantry() {
     const [ pantry, setPantry ] = useState([]);
@@ -220,151 +221,163 @@ export default function Pantry() {
 
   return (
     <Box
-      sx={{
-        height: { xs: '100%', sm: '100%'},
-        width: '100%',
-        '& .actions': {
-          color: 'text.secondary',
-        },
-        '& .textPrimary': {
-          color: 'text.primary',
-        },
-        overflow: 'auto',
-      }}
-      flex={1}
-      display="flex"
-      flexDirection="column"
+        sx={{
+        width: '100vw',
+        height: '100vh',
+        bgcolor: 'secondary.main',
+        }}
+        display={'flex'}
+        flexDirection={{ xs: 'column-reverse', sm: 'column-reverse', md: 'row'}}
     >
+        <Sidebar />
         <Box
-            display={'flex'}
-            flexDirection={{ xs: 'column', sm: 'row' }}
-            justifyContent={'space-between'}
-            alignItems={{ xs: 'flex-start', sm: 'center' }}
             sx={{
-                paddingBottom: '1.5rem',
-                paddingTop: { xs: 1, sm: 1 },
-            }}
-            gap={{ xs: 3, sm: 8 }}
-        >
-            <Typography
-                sx={{
-                    color: 'primary.dark'
-                }}
-            >
-                Pantry
-            </Typography>
-
-            <Box
-                display={'flex'}
-                justifyContent={'flex-end'}
-                sx={{
-                    flexGrow: 1,
-                    width: { xs: '100%' },
-                }}
-                gap={3}
-            >
-                <TextField
-                    label="Search"
-                    variant="outlined"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    sx={{
-                        flexGrow: 1,
-                        '& .MuiOutlinedInput-root': {
-                            p: 0,
-                            '& fieldset': {
-                                bgcolor: '#ffffff',
-                                borderRadius: '180px',
-                                borderColor: 'primary.main',
-                            },
-                            '&:hover fieldset': {
-                                borderColor: 'primary.main',
-                            },
-                            '&.Mui-focused fieldset': {
-                                borderColor: 'primary.main',
-                            },
-                        },
-                    }}
-                    size='small'
-                    placeholder="Search pantry"
-                />
-
-                    { isMobile ? (
-                        <Button
-                            sx={{
-                                bgcolor: 'primary.main',
-                                color: 'secondary.main',
-                                borderRadius: '28px',
-                                paddingLeft: '1.5rem',
-                                paddingRight: '1.5rem',
-                                '&:hover': {
-                                    bgcolor: 'primary.dark'
-                                }
-                            }}
-                            startIcon={<AddRounded />}
-                            onClick={handleOpen}
-                        >
-                            Add
-                        </Button>
-                    ) : (
-                        <Button
-                            sx={{
-                                bgcolor: 'primary.main',
-                                color: 'secondary.main',
-                                borderRadius: '28px',
-                                paddingLeft: '1.5rem',
-                                paddingRight: '1.5rem',
-                                '&:hover': {
-                                    bgcolor: 'primary.dark'
-                                }
-                            }}
-                            startIcon={<AddRounded />}
-                            onClick={handleOpen}
-                        >
-                            Add Item
-                        </Button>
-                    )}
-
-            </Box>
-        </Box>
-        <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="Add new pantry item form"
-            aria-describedby="Form to add a new item to your pantry"
-            sx={{
-                p: 3,
-                overflow: 'auto',
-            }}
-        >
-            <AddForm addNewItem={addItem} handleClose={handleClose} />
-        </Modal>
-        <DataGrid
-            rows={filteredPantry}
-            columns={columns}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
-            sx={{
-                '& .MuiDataGrid-cell, & .MuiDataGrid-columnHeaderTitle': {
-                    textTransform: 'capitalize',
-                },
-                '& .MuiDataGrid-container--top [role=row]': {
-                    // background: 'none !important',
-                    borderTopLeftRadius: 18,
-                    borderTopRightRadius: 18,
-                },
-                bgcolor: '#ffffff',
-                borderRadius: '18px',
-                borderTop: 0,
+                height: { xs: '100%', sm: '100%'},
                 width: '100%',
-                flexGrow: 1,
-                overflowX: 'scroll',
+                '& .actions': {
+                color: 'text.secondary',
+                },
+                '& .textPrimary': {
+                color: 'text.primary',
+                },
+                overflow: 'auto',
+                p: '1.5rem 3rem',
             }}
             flex={1}
-        />
+            display="flex"
+            flexDirection="column"
+        >
+            <Box
+                display={'flex'}
+                flexDirection={{ xs: 'column', sm: 'row' }}
+                justifyContent={'space-between'}
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                sx={{
+                    paddingBottom: '1.5rem',
+                    paddingTop: { xs: 1, sm: 1 },
+                }}
+                gap={{ xs: 3, sm: 8 }}
+            >
+                <Typography
+                    sx={{
+                        color: 'primary.dark'
+                    }}
+                >
+                    Pantry
+                </Typography>
+
+                <Box
+                    display={'flex'}
+                    justifyContent={'flex-end'}
+                    sx={{
+                        flexGrow: 1,
+                        width: { xs: '100%' },
+                    }}
+                    gap={3}
+                >
+                    <TextField
+                        label="Search"
+                        variant="outlined"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        sx={{
+                            flexGrow: 1,
+                            '& .MuiOutlinedInput-root': {
+                                p: 0,
+                                '& fieldset': {
+                                    bgcolor: '#ffffff',
+                                    borderRadius: '180px',
+                                    borderColor: 'primary.main',
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: 'primary.main',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: 'primary.main',
+                                },
+                            },
+                        }}
+                        size='small'
+                        placeholder="Search pantry"
+                    />
+
+                        { isMobile ? (
+                            <Button
+                                sx={{
+                                    bgcolor: 'primary.main',
+                                    color: 'secondary.main',
+                                    borderRadius: '28px',
+                                    paddingLeft: '1.5rem',
+                                    paddingRight: '1.5rem',
+                                    '&:hover': {
+                                        bgcolor: 'primary.dark'
+                                    }
+                                }}
+                                startIcon={<AddRounded />}
+                                onClick={handleOpen}
+                            >
+                                Add
+                            </Button>
+                        ) : (
+                            <Button
+                                sx={{
+                                    bgcolor: 'primary.main',
+                                    color: 'secondary.main',
+                                    borderRadius: '28px',
+                                    paddingLeft: '1.5rem',
+                                    paddingRight: '1.5rem',
+                                    '&:hover': {
+                                        bgcolor: 'primary.dark'
+                                    }
+                                }}
+                                startIcon={<AddRounded />}
+                                onClick={handleOpen}
+                            >
+                                Add Item
+                            </Button>
+                        )}
+
+                </Box>
+            </Box>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="Add new pantry item form"
+                aria-describedby="Form to add a new item to your pantry"
+                sx={{
+                    p: 3,
+                    overflow: 'auto',
+                }}
+            >
+                <AddForm addNewItem={addItem} handleClose={handleClose} />
+            </Modal>
+            <DataGrid
+                rows={filteredPantry}
+                columns={columns}
+                editMode="row"
+                rowModesModel={rowModesModel}
+                onRowModesModelChange={handleRowModesModelChange}
+                onRowEditStop={handleRowEditStop}
+                processRowUpdate={processRowUpdate}
+                sx={{
+                    '& .MuiDataGrid-cell, & .MuiDataGrid-columnHeaderTitle': {
+                        textTransform: 'capitalize',
+                    },
+                    '& .MuiDataGrid-container--top [role=row]': {
+                        // background: 'none !important',
+                        borderTopLeftRadius: 18,
+                        borderTopRightRadius: 18,
+                    },
+                    bgcolor: '#ffffff',
+                    borderRadius: '18px',
+                    borderTop: 0,
+                    width: '100%',
+                    flexGrow: 1,
+                    overflowX: 'scroll',
+                }}
+                flex={1}
+            />
+        </Box>
     </Box>
   );
 }
