@@ -4,7 +4,6 @@ import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from "f
 import { useEffect, useState } from "react";
 import AddForm from "@/components/AddForm";
 import Box from '@mui/material/Box';
-import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Close';
 import {
@@ -115,14 +114,14 @@ export default function Pantry() {
         {
             field: 'name',
             headerName: 'Name',
-            width: 200,
+            minWidth: 200,
             editable: true,
             flex: 2,
         },
         {
             field: 'category',
             headerName: 'Category',
-            width: 200,
+            minWidth: 200,
             align: 'left',
             headerAlign: 'left',
             type: 'singleSelect',
@@ -134,7 +133,7 @@ export default function Pantry() {
             field: 'quantity',
             headerName: 'Quantity',
             type: 'number',
-            width: 100,
+            minWidth: 100,
             editable: true,
             align: 'left',
             headerAlign: 'left',
@@ -144,7 +143,7 @@ export default function Pantry() {
             field: 'expiration',
             headerName: 'Expiration',
             type: 'date',
-            width: 100,
+            minWidth: 100,
             editable: true,
             valueGetter: (params) => {
                 return params.seconds ? new Date(params.seconds * 1000) : new Date(params);
@@ -222,7 +221,7 @@ export default function Pantry() {
   return (
     <Box
       sx={{
-        height: { xs: '83%', sm: 500},
+        height: { xs: '100%', sm: '100%'},
         width: '100%',
         '& .actions': {
           color: 'text.secondary',
@@ -230,16 +229,22 @@ export default function Pantry() {
         '& .textPrimary': {
           color: 'text.primary',
         },
+        overflow: 'auto',
       }}
+      flex={1}
+      display="flex"
+      flexDirection="column"
     >
         <Box
             display={'flex'}
+            flexDirection={{ xs: 'column', sm: 'row' }}
             justifyContent={'space-between'}
-            alignItems={'center'}
+            alignItems={{ xs: 'flex-start', sm: 'center' }}
             sx={{
                 paddingBottom: '1.5rem',
+                paddingTop: { xs: 1, sm: 1 },
             }}
-            gap={8}
+            gap={{ xs: 3, sm: 8 }}
         >
             <Typography
                 sx={{
@@ -253,7 +258,8 @@ export default function Pantry() {
                 display={'flex'}
                 justifyContent={'flex-end'}
                 sx={{
-                    flexGrow: 1
+                    flexGrow: 1,
+                    width: { xs: '100%' },
                 }}
                 gap={3}
             >
@@ -346,14 +352,18 @@ export default function Pantry() {
                     textTransform: 'capitalize',
                 },
                 '& .MuiDataGrid-container--top [role=row]': {
-                    background: 'none !important',
+                    // background: 'none !important',
+                    borderTopLeftRadius: 18,
+                    borderTopRightRadius: 18,
                 },
                 bgcolor: '#ffffff',
                 borderRadius: '18px',
                 borderTop: 0,
                 width: '100%',
-                height: '100%',
+                flexGrow: 1,
+                overflowX: 'scroll',
             }}
+            flex={1}
         />
     </Box>
   );

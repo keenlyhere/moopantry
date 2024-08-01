@@ -5,6 +5,7 @@ import { Box } from '@mui/material';
 import Sidebar from '@/components/Sidebar';
 import "./globals.css";
 import { firebaseConfig } from '@/firebase';
+import Login from './login/page';
 
 export const metadata = {
   title: "Create Next App",
@@ -12,6 +13,7 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const isLoggedIn = false;
   return (
     <html lang="en">
       <head>
@@ -20,25 +22,40 @@ export default function RootLayout({ children }) {
       <body>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
-            <Box
-              sx={{
-                width: '100vw',
-                height: '100vh',
-                bgcolor: 'secondary.main',
-              }}
-              display={'flex'}
-            >
-              <Sidebar />
-              <Box
-                sx={{
-                  p: '1.5rem 3rem',
-                  overflow: 'auto',
-                  flexGrow: 1,
-                }}
-              >
-                { children }
-              </Box>
-            </Box>
+            {
+              isLoggedIn ? (
+                <Box
+                  sx={{
+                    width: '100vw',
+                    height: '100vh',
+                    bgcolor: 'secondary.main',
+                  }}
+                  display={'flex'}
+                  flexDirection={{ xs: 'column-reverse', sm: 'column-reverse', md: 'row'}}
+                >
+                  <Sidebar />
+                  <Box
+                    sx={{
+                      p: '1.5rem 3rem',
+                      overflow: 'scroll',
+                      flexGrow: 1,
+                    }}
+                  >
+                    { children }
+                  </Box>
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    p: '1.5rem 3rem',
+                    overflow: 'scroll',
+                    flexGrow: 1,
+                  }}
+                >
+                  { children }
+                </Box>
+              )
+            }
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

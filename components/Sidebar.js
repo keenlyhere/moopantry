@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const isMobile = useMediaQuery('(max-width:600px)');
+    const isMobile = useMediaQuery('(max-width:900px)');
 
     const SidebarContent = () => (
         <Box
@@ -137,8 +137,8 @@ export default function Sidebar() {
         <BottomNavigation
             showLabels
             sx={{
-                position: 'fixed',
-                bottom: 0,
+                // position: 'fixed',
+                // bottom: 0,
                 width: '100%',
                 height: 64,
                 bgcolor: '#ffffff',

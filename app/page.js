@@ -1,28 +1,18 @@
 'use client'
-import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const isLoggedIn = false;
 
   useEffect(() => {
-    router.replace('/dashboard');
+    if (isLoggedIn) {
+      router.replace('/dashboard');
+    } else {
+      router.replace('/login');
+    }
   }, [router]);
 
   return null;
-  return (
-    <Box
-      sx={{
-        width: '100vw',
-        height: '100vh',
-        bgcolor: 'secondary.main',
-      }}
-
-    >
-      {/* to-do: sidebar */}
-      {/* <Sidebar /> */}
-      {/* to-do: main content */}
-    </Box>
-  );
 }
