@@ -5,9 +5,13 @@ import { useState } from "react";
 import GoogleIcon from '@mui/icons-material/Google';
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [ showPassword, setShowPassword ] = useState(false);
+    const router = useRouter();
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -16,6 +20,21 @@ export default function Login() {
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const result = await signIn('credentials', {
+            email,
+            password,
+            redirect: false,
+        });
+
+        if (result.error) {
+            console.error(result.error);
+        } else {
+            router.push('/dashboard');
+        }
+    }
 
     return (
         <Box
@@ -54,6 +73,8 @@ export default function Login() {
                 display='flex'
                 flexDirection='column'
                 gap={3}
+                onSubmit={handleSubmit}
+                component='form'
             >
                 <TextField
                     id='outlined-required'
@@ -69,6 +90,8 @@ export default function Login() {
                             color: 'primary.dark',
                         },
                     }}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
 
                 <TextField
@@ -111,6 +134,8 @@ export default function Login() {
                             color: 'primary.dark',
                         },
                     }}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
                 <Button
                     type="submit"

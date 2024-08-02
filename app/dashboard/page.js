@@ -27,26 +27,10 @@ export default function Dashboard() {
         >
             Dashboard
         </Typography>
+        {/* to-do: total items */}
+        {/* to-do: expiring soon list */}
+        {/* to-do: visual data of item distribution between categories */}
       </Box>
     </Box>
-    // <Box
-    //   sx={{
-    //     height: { xs: '100%', sm: '100%'},
-    //     width: '100%',
-    //     '& .actions': {
-    //       color: 'text.secondary',
-    //     },
-    //     '& .textPrimary': {
-    //       color: 'text.primary',
-    //     },
-    //     overflow: 'auto',
-    //   }}
-    //   flex={1}
-    //   display="flex"
-    //   flexDirection="column"
-    // >
-    //     {/* to-do: dashboard content */}
-
-    // </Box>
   )
 }

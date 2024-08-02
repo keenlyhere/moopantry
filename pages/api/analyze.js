@@ -1,4 +1,3 @@
-import axios from 'axios';
 const OpenAI = require('openai');
 const openai = new OpenAI({
     apiKey: `${process.env.NEXT_PUBLIC_OPEN_API_KEY}`

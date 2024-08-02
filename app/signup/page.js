@@ -3,9 +3,15 @@ import { Google, Visibility, VisibilityOff } from "@mui/icons-material";
 import { Box, Button, Divider, Grid, InputAdornment, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Signup() {
-    const [ showPassword, setShowPassword ] = useState(false);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const router = useRouter();
 
     const handleClickShowPassword = () => {
         setShowPassword((show) => !show);
@@ -13,6 +19,38 @@ export default function Signup() {
 
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        console.log('form submitted')
+
+        const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password }),
+        });
+
+        if (response.ok) {
+            const result = await signIn("credentials", {
+                email,
+                password,
+                name,
+                redirect: false,
+            });
+
+            if (result.error) {
+                console.error("Error signing in:", result.error);
+            } else {
+                router.push("/dashboard");
+            }
+
+        } else {
+            const data = await response.json();
+            console.error(data.error);
+        }
     };
 
     return (
@@ -28,6 +66,7 @@ export default function Signup() {
                 },
                 overflow: 'auto',
                 bgcolor: '#ffffff',
+                p: '1.5rem 3rem',
             }}
             flex={1}
             display="flex"
@@ -51,6 +90,8 @@ export default function Signup() {
                 display='flex'
                 flexDirection='column'
                 gap={3}
+                onSubmit={handleSubmit}
+                component='form'
             >
                 <TextField
                     id='outlined-required'
@@ -66,6 +107,7 @@ export default function Signup() {
                             color: 'primary.dark',
                         },
                     }}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <TextField
                     id='outlined-required'
@@ -81,6 +123,7 @@ export default function Signup() {
                             color: 'primary.dark',
                         },
                     }}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
 
                 <TextField
@@ -123,6 +166,7 @@ export default function Signup() {
                             color: 'primary.dark',
                         },
                     }}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
                 <Button
                     type="submit"
@@ -173,6 +217,7 @@ export default function Signup() {
                         }
                     }}
                     startIcon={<Google />}
+                    onClick={() => signIn('google')}
                 >
                     Google
                 </Button>
