@@ -201,7 +201,7 @@ export default function Login() {
                         color: 'primary.dark',
                     }}
                 >
-                    Don't have an account?
+                    Don&apos;t have an account?
                 </Typography>
                 <Link
                     href={'/signup'}
