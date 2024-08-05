@@ -1,6 +1,6 @@
 const OpenAI = require('openai');
 const openai = new OpenAI({
-    apiKey: `${process.env.NEXT_PUBLIC_OPEN_API_KEY}`
+    apiKey: `${process.env.OPEN_API_KEY}`
 })
 
 const prompt = `
