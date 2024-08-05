@@ -16,8 +16,6 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
                 name: { label: 'Name', type: 'text' },
             },
             async authorize(credentials, req) {
-                console.log('credentials:', credentials);
-                console.log('req:', req.body);
                 const user = { name: credentials.name, email: credentials.email };
 
                 if (user) {
@@ -40,7 +38,6 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             }
 
             if (user) {
-                console.log('auth.js - user:', user);
                 token.id = user.id;
                 token.name = user.name;
                 token.email = user.email;

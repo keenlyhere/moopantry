@@ -62,7 +62,6 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
         })
 
         setErrors(newErrors);
-        console.log("newErrors:", newErrors);
 
         return newErrors.every(error => Object.keys(error).length === 0);
         return Object.keys(newErrors).length === 0;
@@ -79,22 +78,6 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
             await addNewItem(item);
         }
 
-        // const newItem = {
-        //     name,
-        //     category,
-        //     quantity,
-        //     expiration
-        // }
-
-        // console.log("newItem:", newItem)
-
-        // await addNewItem(newItem);
-
-        // reset form after submission
-        // setName('');
-        // setCategory('');
-        // setQuantity(0);
-        // setExpiration('');
         setItems([{ name: '', category: '', quantity: 1, expiration: '' }]);
 
         handleClose();
@@ -142,17 +125,7 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
 
     const handleCapture = async () => {
         const image = camera.current.takePhoto();
-        // console.log("Captured image:", image);
 
-        // to-do: classify image - api call to gpt vision api
-        // const classifyImage = async (image) => {
-        //     return {
-        //         name: "Carrot",
-        //         category: "Produce",
-        //         quantity: 2,
-        //         expiration: "2024-12-31"
-        //     }
-        // }
         try {
             const res = await fetch('/api/analyze', {
                 method: 'POST',
@@ -167,8 +140,6 @@ const AddForm = forwardRef(function AddForm({ addNewItem, handleClose }, ref) {
             if (typeof data === 'string') {
                 data = JSON.parse(data);
             }
-
-            console.log("**************** DATA ****************\n\n", data.items, '\n', typeof data, '\n', "**************************************");
 
             if (data.items && data.items.length > 0) {
                 setItems(data.items);

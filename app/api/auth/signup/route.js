@@ -6,13 +6,11 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
     try {
         const { email, password, name } = await request.json();
-        console.log({ email, password, name});
         const userCollection = collection(firestore, 'Users');
 
         // check if user already exists
         const userQuery = query(userCollection, where('email', '==', email));
         const querySnapshot = await getDocs(userQuery);
-        console.log('querySnapshot:', querySnapshot);
 
 
         if (!querySnapshot.empty) {
@@ -37,7 +35,18 @@ export async function POST(request) {
             id: newUserDocRef.id
         })
 
-        console.log('User created with ID', newUserDocRef.id)
+        const pantryCollection = collection(firestore, 'Pantry');
+        const newPantryDoc = await addDoc(pantryCollection, {
+            userId: newUserDocRef.id,
+            createdAt: new Date(),
+        })
+
+        await updateDoc(newUserDocRef, {
+            pantryId: newPantryDoc.id
+        })
+
+        // console.log('User created with ID', newUserDocRef.id);
+        // console.log('Pantry created with ID', newPantryDoc.id);
     } catch (error) {
         console.error('Error creating new user:', error);
     }

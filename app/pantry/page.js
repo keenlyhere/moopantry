@@ -1,6 +1,6 @@
 'use client'
 import { firestore } from "@/firebase";
-import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { collection, query, getDocs, addDoc, updateDoc, doc, deleteDoc, where, Timestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import AddForm from "@/components/AddForm";
 import Box from '@mui/material/Box';
@@ -15,13 +15,16 @@ import {
 import { Button, Modal, TextField, Typography, useMediaQuery } from "@mui/material";
 import { AddRounded, DeleteRounded, EditRounded } from "@mui/icons-material";
 import Sidebar from "@/components/Sidebar";
+import { useSession } from "next-auth/react";
 
 export default function Pantry() {
-    const [ pantry, setPantry ] = useState([]);
-    const [rowModesModel, setRowModesModel] = useState({});
+    const { data: session } = useSession();
+    const [ pantryItems, setPantryItems ] = useState([]);
+    const [ rowModesModel, setRowModesModel ] = useState({});
     const [ open, setOpen ] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [ searchQuery, setSearchQuery ] = useState('');
     const isMobile = useMediaQuery('(max-width:600px)');
+    const [ pantryId, setPantryId ] = useState(null);
 
     const handleOpen = () => {
         setOpen(true);
@@ -48,7 +51,7 @@ export default function Pantry() {
     const handleDeleteClick = (id) => async () => {
         try {
             await deleteDoc(doc(firestore, 'pantry', id));
-            setPantry(pantry.filter((row) => row.id !== id));
+            setPantryItems(pantryItems.filter((row) => row.id !== id));
         } catch (error) {
             console.error('Error deleting item:', error);
         }
@@ -60,34 +63,69 @@ export default function Pantry() {
         [id]: { mode: GridRowModes.View, ignoreModifications: true },
     });
 
-    const editedRow = pantry.find((row) => row.id === id);
+    const editedRow = pantryItems.find((row) => row.id === id);
         if (editedRow.isNew) {
-            setPantry(pantry.filter((row) => row.id !== id));
+            setPantryItems(pantryItems.filter((row) => row.id !== id));
         }
     };
 
     const processRowUpdate = async (newRow) => {
         const updatedRow = { ...newRow, isNew: false };
         try {
-            const pantryDoc = doc(firestore, 'pantry', newRow.id);
-            await updateDoc(pantryDoc, {
+            const pantryItemDoc = doc(firestore, 'PantryItems', newRow.id);
+            const expirationTimestamp = newRow.expiration instanceof Date ? Timestamp.fromDate(newRow.expiration) : newRow.expiration;
+
+            await updateDoc(pantryItemDoc, {
                 name: newRow.name,
                 category: newRow.category,
                 quantity: newRow.quantity,
-                expiration: newRow.expiration,
+                expiration: expirationTimestamp,
             });
-            setPantry(pantry.map((row) => (row.id === newRow.id ? updatedRow : row)));
+            setPantryItems(pantryItems.map((row) => (row.id === newRow.id ? { ...updatedRow, expiration: expirationTimestamp } : row)));
         } catch (error) {
             console.error('Error updating item:', error);
         }
         return updatedRow;
     };
 
+    const handleDateChange = (date) => {
+        const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+        setExpiration(utcDate);
+    };
+
     const addItem = async (newItem) => {
         try {
-            const pantryCollection = collection(firestore, 'pantry');
-            const newPantryItem = await addDoc(pantryCollection, newItem);
-            setPantry((prevPantry) => [...prevPantry, { ...newItem, id: newPantryItem.id }]);
+            const pantryItemsColleciton = collection(firestore, 'PantryItems');
+
+            // convert date string to timestamp
+            const parsedDate = new Date(newItem.expiration);
+            const expirationTimestamp = Timestamp.fromDate(parsedDate);
+
+            // check if item with same name and expiration exists
+            const existingItemQuery = query(pantryItemsColleciton, where('pantryId', '==', pantryId), where('name', '==', newItem.name), where('expiration', '==', expirationTimestamp));
+            const querySnapshot = await getDocs(existingItemQuery);
+
+            if (!querySnapshot.empty) {
+                // update quantity
+                const existingItemDoc = querySnapshot.docs[0];
+                const existingItemData = existingItemDoc.data();
+                const updatedQuantity = Number(existingItemData.quantity) + Number(newItem.quantity);
+
+                await updateDoc(existingItemDoc.ref, {
+                    quantity: updatedQuantity
+                });
+
+                // update state
+                setPantryItems((prevPantryItem) => (
+                    prevPantryItem.map((item) => (
+                        item.id === existingItemDoc.id ? { ...item, quantity: updatedQuantity } : item
+                    ))
+                ));
+            } else {
+                // add new item
+                const newPantryItem = await addDoc(pantryItemsColleciton, { ...newItem, expiration: expirationTimestamp, pantryId });
+                setPantryItems((prevPantry) => [...prevPantry, { ...newItem, expiration: expirationTimestamp, id: newPantryItem.id }]);
+            }
         } catch (error) {
             console.error("Error adding item:", error);
         }
@@ -97,19 +135,45 @@ export default function Pantry() {
         setRowModesModel(newRowModesModel);
     };
 
-    const updatePantry = async () => {
-        const snapshot = query(collection(firestore, 'pantry'));
+    const updatePantryItems = async (pantryId) => {
+        const snapshot = query(collection(firestore, 'PantryItems'), where('pantryId', '==', pantryId));
         const docs = await getDocs(snapshot);
-        const pantryList = [];
+        const pantryItemsList = [];
         docs.forEach((doc) => {
-            pantryList.push({
+            pantryItemsList.push({
                 ...doc.data(),
                 id: doc.id
             })
         })
 
-        setPantry(pantryList);
+        setPantryItems(pantryItemsList);
     }
+
+    const getPantryId = async (userId) => {
+        const pantriesQuery = query(collection(firestore, 'Pantry'), where ('userId', '==', userId));
+        const docs = await getDocs(pantriesQuery);
+
+        if (!docs.empty) {
+            return docs.docs[0].id;
+        } else {
+            // create a pantry for new user
+            const pantryCollection = collection(firestore, 'Pantry');
+            const newPantryDoc = await addDoc(pantryCollection, {
+                userId: userId,
+                createdAt: new Date(),
+            });
+            return newPantryDoc.id;
+        }
+    }
+
+    useEffect(() => {
+        if (session) {
+            getPantryId(session.user.id).then((id) => {
+                setPantryId(id);
+                updatePantryItems(id);
+            })
+        }
+    }, [session]);
 
     const columns = [
         {
@@ -147,7 +211,8 @@ export default function Pantry() {
             minWidth: 100,
             editable: true,
             valueGetter: (params) => {
-                return params.seconds ? new Date(params.seconds * 1000) : new Date(params);
+                const date = params instanceof Timestamp ? params.toDate() : new Date(params);
+                return date;
             },
             flex: 1,
         },
@@ -210,11 +275,7 @@ export default function Pantry() {
         },
     ];
 
-    useEffect(() => {
-        updatePantry();
-    }, [])
-
-    const filteredPantry = pantry.filter((item) =>
+    const filteredPantry = pantryItems.filter((item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
