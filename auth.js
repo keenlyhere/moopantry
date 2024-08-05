@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+const secret = process.env.AUTH_SECRET;
+
 export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
     providers: [
         GoogleProvider({
@@ -26,7 +28,7 @@ export const { handlers: { GET, POST }, auth, signIn, signOut } = NextAuth({
             }
         })
     ],
-    secret: process.env.AUTH_SECRET,
+    secret: secret,
     session: {
         jwt: true,
         maxAge: 30 * 24 * 60 * 60,
